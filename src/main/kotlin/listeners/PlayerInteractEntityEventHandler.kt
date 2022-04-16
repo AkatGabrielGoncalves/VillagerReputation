@@ -11,7 +11,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerInteractEntityEvent
 
 class PlayerInteractEntityEventHandler(private var plugin: Main) : Listener {
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.LOWEST)
   fun onInteraction(event: PlayerInteractEntityEvent) {
     val entity = event.rightClicked
 
@@ -20,22 +20,35 @@ class PlayerInteractEntityEventHandler(private var plugin: Main) : Listener {
 
       if (plugin.professions.contains(villager.profession)) {
         val highestRep = Reputation()
+        var highestMajorPositive = 0
+        var highestMinorPositive = 0
 
+        // Search for the highest values for reputations of types major and minor positive
         villager.reputations.forEach {
-          if (it.value.getReputation(ReputationType.MAJOR_POSITIVE) > highestRep.getReputation(ReputationType.MAJOR_POSITIVE)) {
-            highestRep.setReputation(
-              ReputationType.MAJOR_POSITIVE,
-              it.value.getReputation(ReputationType.MAJOR_POSITIVE)
-            )
+          val majorPositive = it.value.getReputation(ReputationType.MAJOR_POSITIVE)
+          val minorPositive = it.value.getReputation(ReputationType.MINOR_POSITIVE)
+
+          if (majorPositive > highestMajorPositive) {
+            highestMajorPositive = majorPositive
           }
 
-          if (it.value.getReputation(ReputationType.MINOR_POSITIVE) > highestRep.getReputation(ReputationType.MINOR_POSITIVE)) {
-            highestRep.setReputation(
-              ReputationType.MINOR_POSITIVE,
-              it.value.getReputation(ReputationType.MINOR_POSITIVE)
-            )
+          if (minorPositive > highestMinorPositive) {
+            highestMinorPositive = minorPositive
           }
         }
+
+        // Set Reputations values. The positives ones are from the highest reps of the server
+        // The negatives ones are from the user that interacted or 0
+        // This is to not make villagers always love Players. They still gain negative points.
+        highestRep.setReputation(
+          ReputationType.MAJOR_POSITIVE,
+          highestMajorPositive
+        )
+
+        highestRep.setReputation(
+          ReputationType.MINOR_POSITIVE,
+          highestMinorPositive
+        )
 
         val currentRep = villager.reputations[event.player.uniqueId]
         highestRep.setReputation(

@@ -1,11 +1,10 @@
 import listeners.PlayerInteractEntityEventHandler
 import org.bukkit.entity.Villager
 import org.bukkit.plugin.java.JavaPlugin
-import java.util.*
 
 class Main() : JavaPlugin() {
   var professions: HashSet<Villager.Profession> =
-    hashSetOf<Villager.Profession>(
+    hashSetOf(
       Villager.Profession.ARMORER,
       Villager.Profession.BUTCHER,
       Villager.Profession.CARTOGRAPHER,
@@ -26,9 +25,5 @@ class Main() : JavaPlugin() {
   }
 
   override fun onDisable() {
-  }
-
-  fun debug(uuid: UUID, message: String) {
-    this.server.getPlayer(uuid)?.sendMessage("DEBUG: $message")
   }
 }
